@@ -1,0 +1,11 @@
+fastapi
+sqlmodel
+psycopg2-binary
+sentence-transformers
+scikit-learn
+numpy
+httpx
+uvicorn
+python-dotenv
+redis
+celery

@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  db:
+    image: supabase/postgres:15-local
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: reddit_os
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://postgres:pass@db:5432/reddit_os
+    volumes:
+      - ./:/app
+    command: uvicorn api.main:app --host 0.0.0.0 --reload
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  web:
+    build: ./web
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    volumes:
+      - ./web:/app
+    command: npm run dev
+
+volumes:
+  pgdata:
