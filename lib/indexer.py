@@ -123,6 +123,8 @@ class MemoryIndexer:
     def _generate_local_response(self, prompt: str) -> str:
         from datetime import datetime
         
+        prompt_lower = prompt.lower()
+        
         if 'SUMMARY:' in prompt and 'KEY_POINTS' in prompt:
             return f"""
 SUMMARY: {prompt[:100]}... This post discusses key strategies and experiences that can help others in similar situations.
@@ -141,26 +143,71 @@ ENGAGEMENT_TIPS:
 """
         
         if 'Generate 3 response options' in prompt:
-            return json.dumps([
-                {
-                    "tone": "Direct/Practical",
-                    "content": "Here's what worked for me: focus on providing genuine value first, then the backlinks and karma naturally follow. I recommend starting with 3-5 highly specific comments per day in relevant subreddits rather than broad posting.",
-                    "expected_karma": "10-50",
-                    "reason": "Direct, actionable advice that others can immediately apply"
-                },
-                {
-                    "tone": "Story/Humorous",
-                    "content": "I once spent an entire weekend crafting what I thought was genius content, only to realize I'd been posting in the wrong subreddits. Lesson learned: match your expertise to the audience. What specific niche are you targeting?",
-                    "expected_karma": "20-100",
-                    "reason": "Relatable failure story that invites engagement and shows humility"
-                },
-                {
-                    "tone": "Insightful/Analytical",
-                    "content": "The most effective Reddit strategy combines consistent daily engagement with strategic cross-linking. Think of it as building a content flywheel: each valuable comment drives karma, which builds credibility for your profile, which amplifies future posts.",
-                    "expected_karma": "15-75",
-                    "reason": "Framework-based approach that demonstrates expertise while positioning you as an authority"
-                }
-            ])
+            if 'sales' in prompt_lower or 'commission' in prompt_lower or 'compensation' in prompt_lower:
+                return json.dumps([
+                    {
+                        "tone": "Direct/Practical",
+                        "content": "Focus on aligning comp plans with your actual business metrics, not industry benchmarks. Calculate backwards from your CAC and LTV: how much revenue per rep do you need to be profitable? Start simple - one metric per role (meetings for SDRs, revenue for AEs), then iterate as you get data.",
+                        "expected_karma": "15-50",
+                        "reason": "Actionable framework that shows expertise without being generic"
+                    },
+                    {
+                        "tone": "Story/Humorous",
+                        "content": "I once designed a comp plan that looked great on paper but failed in practice because I forgot to account for seasonal fluctuations. We had to rework it mid-quarter, which was awkward to explain. The lesson: test your assumptions with your first hires before scaling the plan.",
+                        "expected_karma": "20-100",
+                        "reason": "Relatable mistake story that invites conversation"
+                    },
+                    {
+                        "tone": "Insightful/Analytical",
+                        "content": "The best early-stage comp plans have three elements: clear eligibility (what behaviors you're rewarding), reasonable upside (3-5x base), and alignment with retention (NRR-based accelerators). Without these, you'll either burn cash or demotivate your team.",
+                        "expected_karma": "25-75",
+                        "reason": "Framework showing deep understanding of startup dynamics"
+                    }
+                ])
+            
+            elif 'career' in prompt_lower or 'startup' in prompt_lower:
+                return json.dumps([
+                    {
+                        "tone": "Direct/Practical",
+                        "content": "Build a portfolio company while keeping your day job. Use your salary to fund experiments, and once you have proof of concept, then consider the leap. This removes the desperation that kills most early startups.",
+                        "expected_karma": "15-50",
+                        "reason": "Practical advice that resonates with career-switchers"
+                    },
+                    {
+                        "tone": "Story/Humorous",
+                        "content": "Three years ago I was where you are - staring at LinkedIn wondering if I should jump ship. Instead, I started doing client work on weekends. Six months later I had enough pipeline to go full-time. The transition wasn't scary because I'd already figured out the hard part.",
+                        "expected_karma": "25-100",
+                        "reason": "Relatable timeline that shows the path is achievable"
+                    },
+                    {
+                        "tone": "Insightful/Analytical",
+                        "content": "Consider 'portfolio entrepreneurship' - keep your W2 while building something on the side. This gives you financial security AND real market feedback. Once your side project proves product-market fit, you'll know exactly what you're signing up for.",
+                        "expected_karma": "20-75",
+                        "reason": "Strategic framework that positions you as thoughtful advisor"
+                    }
+                ])
+            
+            else:
+                return json.dumps([
+                    {
+                        "tone": "Direct/Practical",
+                        "content": "Here's what worked for me: focus on providing genuine value first, then the karma naturally follows. I recommend engaging deeply with 2-3 posts per day rather than broad posting.",
+                        "expected_karma": "10-50",
+                        "reason": "Direct, actionable advice that others can immediately apply"
+                    },
+                    {
+                        "tone": "Story/Humorous",
+                        "content": "I once spent an entire weekend crafting what I thought was genius content, only to realize I'd missed the actual point of the thread. Lesson learned: always read the whole thread before responding.",
+                        "expected_karma": "15-75",
+                        "reason": "Relatable mistake that shows authenticity"
+                    },
+                    {
+                        "tone": "Insightful/Analytical",
+                        "content": "The most effective engagement comes from adding genuine value. Look for posts where you have real expertise, then provide concrete examples or frameworks. This builds karma and credibility simultaneously.",
+                        "expected_karma": "15-75",
+                        "reason": "Strategic approach that demonstrates expertise"
+                    }
+                ])
         
         return f"Response generated at {datetime.utcnow().isoformat()}"
     
