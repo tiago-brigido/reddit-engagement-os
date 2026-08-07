@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Reddit Engagement OS",
+  "version": "1.0.0",
+  "description": "Memory-based Reddit engagement assistant",
+  "permissions": ["activeTab", "storage", "scripting"],
+  "host_permissions": ["https://www.reddit.com/*", "https://*.reddit.com/*"],
+  "action": {
+    "default_popup": "dashboard/index.html",
+    "default_title": "Reddit Engagement OS"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.reddit.com/*"],
+      "js": ["content-scripts/reddit-scraper.js"],
+      "css": ["dashboard/popup.css"]
+    }
+  ],
+  "background": {
+    "service_worker": "background/background.js"
+  }
+}

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reddit Engagement OS</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🧠 REOS</h1>
+      <p>Reddit Engagement OS</p>
+    </header>
+    
+    <nav>
+      <button id="index-btn" class="active">Index Post</button>
+      <button id="generate-btn">Generate Response</button>
+      <button id="dashboard-btn">Dashboard</button>
+    </nav>
+    
+    <main>
+      <section id="index-section">
+        <h2>Current Post</h2>
+        <div id="post-info">Loading...</div>
+        <button id="capture-btn">Capture & Index</button>
+      </section>
+      
+      <section id="generate-section" style="display:none">
+        <h2>Generate Response</h2>
+        <div class="form-group">
+          <label>Content:</label>
+          <textarea id="post-content" rows="4" placeholder="Paste post content..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Subreddit:</label>
+          <input type="text" id="subreddit" placeholder="e.g. Entrepreneur">
+        </div>
+        <button id="generate-btn-action">Generate Suggestions</button>
+        <div id="suggestions-output"></div>
+      </section>
+      
+      <section id="dashboard-section" style="display:none">
+        <h2>Dashboard</h2>
+        <div id="metrics-container"></div>
+      </section>
+    </main>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
