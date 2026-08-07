@@ -35,6 +35,7 @@ class ResponseBase(SQLModel):
 class Response(ResponseBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     embeddings: Optional[str] = None
+    author: Optional[str] = Field(default=None, index=True)
     topic_id: Optional[int] = Field(default=None, foreign_key="topic.id")
     created_at: str = ""
 

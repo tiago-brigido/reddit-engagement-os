@@ -267,14 +267,68 @@ ENGAGEMENT_TIPS:
                 "id": r.id,
                 "content": r.content,
                 "score": r.score,
+                "author": r.author,
                 "topic": None,
                 "similarity": round(float(sim), 4)
             } for r, sim in top_responses]
     
+    def find_responses_by_author(self, author: str, limit: int = 10) -> List[Dict[str, Any]]:
+        """Find all responses by a specific author/nickname"""
+        with Session(self.engine) as session:
+            stmt = select(Response).where(
+                Response.author.contains(author) if Response.author else False
+            ).order_by(Response.created_at.desc()).limit(limit)
+            responses = session.exec(stmt).all()
+            
+            return [{
+                "id": r.id,
+                "content": r.content,
+                "score": r.score,
+                "author": r.author,
+                "created_at": r.created_at,
+                "ai_generated": r.ai_generated,
+                "model_used": r.model_used
+            } for r in responses]
+    
+    def search_responses_by_content(self, query: str, author: str = None, limit: int = 10) -> List[Dict[str, Any]]:
+        """Search responses by content similarity, optionally filtered by author"""
+        query_embedding = self.embedding_model.encode([query])
+        
+        with Session(self.engine) as session:
+            stmt = select(Response).where(Response.embeddings.isnot(None))
+            if author:
+                stmt = stmt.where(Response.author == author)
+            responses = session.exec(stmt).all()
+            
+            similarities = []
+            for r in responses:
+                r_emb = self._deserialize_embedding(r.embeddings)
+                if r_emb:
+                    from sklearn.metrics.pairwise import cosine_similarity
+                    sim = cosine_similarity(
+                        [query_embedding[0][:min(len(query_embedding[0]), len(r_emb))]], 
+                        [r_emb[:min(len(query_embedding[0]), len(r_emb))]]
+                    )[0][0]
+                    similarities.append((r, sim))
+            
+            similarities.sort(key=lambda x: x[1], reverse=True)
+            top_responses = similarities[:limit]
+            
+            return [{
+                "id": r.id,
+                "content": r.content,
+                "score": r.score,
+                "author": r.author,
+                "similarity": round(float(sim), 4),
+                "model_used": r.model_used
+            } for r, sim in top_responses]
+    
     async def index_response(self, response_data: Dict[str, Any]) -> int:
-        resp = Response(**response_data)
-        resp.created_at = datetime.utcnow().isoformat()
-        resp.embeddings = self._serialize_embedding(self.generate_embeddings(response_data['content']))
+        resp_data = response_data.copy()
+        resp_data.setdefault('created_at', datetime.utcnow().isoformat())
+        resp_data.setdefault('created_at', '')
+        resp = Response(**resp_data)
+        resp.embeddings = self._serialize_embedding(self.generate_embeddings(resp_data.get('content', '')))
         
         with Session(self.engine) as session:
             session.add(resp)
